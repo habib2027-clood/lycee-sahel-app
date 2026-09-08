@@ -2830,7 +2830,19 @@ try{
         else if(r.name === 'grades'){ grades = r.data; }
         else if(r.name === 'announcements'){ announcements = r.data; }
         else if(r.name === 'decisions'){ decisions = r.data; }
-        else if(r.name === 'users'){ users = r.data; }
+        else if(r.name === 'users'){
+          users = r.data;
+          // Migration : assigner un ID aux comptes enregistrés avant l'ajout de ce système d'ID
+          var counters = { admin:0, teacher:0, parent:0 };
+          users.forEach(function(u){
+            if(!u.id){
+              counters[u.role] = (counters[u.role] || 0) + 1;
+              var prefix = u.role === 'admin' ? 'ADM' : (u.role === 'teacher' ? 'ENS' : 'PAR');
+              var n = String(counters[u.role]).padStart(3,'0');
+              u.id = prefix + n;
+            }
+          });
+        }
         else if(r.name === 'settings'){
           appSettings.fees = Object.assign({}, appSettings.fees, r.data.fees || {});
           appSettings.school = Object.assign({}, appSettings.school, r.data.school || {});
